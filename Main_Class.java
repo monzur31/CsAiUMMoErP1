@@ -1,16 +1,10 @@
 package Project_1_CIS_479;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Stack;
+import java.util.*;
 
 public class Main_Class {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		Map BFSmap = new Map();
 		Operations.BFS(BFSmap);
 		BFSmap.printMap("Breadth First Search");
@@ -29,6 +23,11 @@ public class Main_Class {
 		Map GreedyMap = new Map();
 		Operations.Greedy(GreedyMap);
 		GreedyMap.printMap("Greedy Search");
+
+		Operations.printBreakLine();
+		Map AstarMap = new Map();
+		Operations.Astar(AstarMap);
+		AstarMap.printMap("A* Search");
 	}
 	
 
@@ -40,17 +39,72 @@ class Operations
 	{
 		System.out.println("________________________________________________");
 	}
+
+	public static void Astar(Map map)
+	{
+		int currentNumber=1;
+		ArrayList<Node> priorityQueue = new ArrayList<Node>();
+		priorityQueue.add(map.map[3][2]);
+		map.map[3][2].visited=true;
+		while(map.map[0][5].value.equals("[]"))
+		{
+			//debug just to see logic
+//			for(int i=0;i<priorityQueue.size();i++)
+//			{
+//				System.out.print("("+priorityQueue.toArray(new Node[0])[i].value+")"+priorityQueue.toArray(new Node[0])[i].getManhattanDistanceFromPoint(0, 5)+"+"+priorityQueue.toArray(new Node[0])[i].cost+" ");
+//			}
+//			System.out.println("");
+			Node nodeAdventuring = priorityQueue.remove(priorityQueue.indexOf(Collections.min(priorityQueue,new DistanceCostComp())));
+			if(checkBound(nodeAdventuring.x,nodeAdventuring.y-1))
+			{
+				Node changeNode = map.map[nodeAdventuring.x][nodeAdventuring.y-1];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+					changeNode.value=String.format("%02d", currentNumber);
+					changeNode.cost=(nodeAdventuring.cost+2);
+					currentNumber++;
+					priorityQueue.add(changeNode);
+				}
+			}
+			if(checkBound(nodeAdventuring.x-1,nodeAdventuring.y))
+			{
+				Node changeNode = map.map[nodeAdventuring.x-1][nodeAdventuring.y];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+					changeNode.value=String.format("%02d", currentNumber);
+					changeNode.cost=(nodeAdventuring.cost+1);
+					currentNumber++;
+					priorityQueue.add(changeNode);
+				}
+			}
+			if(checkBound(nodeAdventuring.x,nodeAdventuring.y+1))
+			{
+				Node changeNode = map.map[nodeAdventuring.x][nodeAdventuring.y+1];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+					changeNode.value=String.format("%02d", currentNumber);
+					changeNode.cost=(nodeAdventuring.cost+2);
+					currentNumber++;
+					priorityQueue.add(changeNode);
+				}
+			}
+			if(checkBound(nodeAdventuring.x+1,nodeAdventuring.y))
+			{
+				Node changeNode = map.map[nodeAdventuring.x+1][nodeAdventuring.y];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+					changeNode.value=String.format("%02d", currentNumber);
+					changeNode.cost=(nodeAdventuring.cost+3);
+					currentNumber++;
+					priorityQueue.add(changeNode);
+				}
+			}
+		}
+	}
 	public static void Greedy(Map map)
 	{
 		int currentNumber=1;
-		PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>(new Comparator<Node>()
-				{
-			@Override
-			public int compare(Node s1, Node s2)
-			{
-				return s1.getManhattanDistanceFromPoint(0, 5)-s2.getManhattanDistanceFromPoint(0, 5);
-			}
-				});
+		ArrayList<Node> priorityQueue = new ArrayList<Node>();
 		priorityQueue.add(map.map[3][2]);
 		map.map[3][2].visited=true;
 		while(map.map[0][5].value.equals("[]"))
@@ -61,7 +115,7 @@ class Operations
 //				System.out.print("("+priorityQueue.toArray(new Node[0])[i].value+")"+priorityQueue.toArray(new Node[0])[i].getManhattanDistanceFromPoint(0, 5)+" ");
 //			}
 //			System.out.println("");
-			Node nodeAdventuring = priorityQueue.remove();
+			Node nodeAdventuring = priorityQueue.remove(priorityQueue.indexOf(Collections.min(priorityQueue,new DistanceComp())));
 			if(checkBound(nodeAdventuring.x,nodeAdventuring.y-1))
 			{
 				Node changeNode = map.map[nodeAdventuring.x][nodeAdventuring.y-1];
@@ -111,19 +165,12 @@ class Operations
 	public static void UCS(Map map)
 	{
 		int currentNumber=1;
-		PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>(new Comparator<Node>()
-				{
-			@Override
-			public int compare(Node s1, Node s2)
-			{
-				return s1.cost-s2.cost;
-			}
-				});
+		ArrayList<Node> priorityQueue = new ArrayList<Node>();
 		priorityQueue.add(map.map[3][2]);
 		map.map[3][2].visited=true;
 		while(map.map[0][5].value.equals("[]"))
 		{
-			Node nodeAdventuring = priorityQueue.remove();
+			Node nodeAdventuring = priorityQueue.remove(priorityQueue.indexOf(Collections.min(priorityQueue,new CostComp())));
 			if(checkBound(nodeAdventuring.x,nodeAdventuring.y-1))
 			{
 				Node changeNode = map.map[nodeAdventuring.x][nodeAdventuring.y-1];
@@ -280,6 +327,30 @@ class Operations
 			return false;
 		}
 		return true;
+	}
+}
+
+class DistanceCostComp implements Comparator<Node>
+{
+
+	@Override
+	public int compare(Node s1, Node s2) {
+		return (s1.getManhattanDistanceFromPoint(0, 5)+s1.cost)-(s2.getManhattanDistanceFromPoint(0, 5)+s2.cost);
+	}
+}
+class DistanceComp implements Comparator<Node>
+{
+
+	@Override
+	public int compare(Node s1, Node s2) {
+		return s1.getManhattanDistanceFromPoint(0, 5)-s2.getManhattanDistanceFromPoint(0, 5);
+	}
+}
+class CostComp implements Comparator<Node>
+{
+	@Override
+	public int compare(Node s1, Node s2) {
+		return s1.cost-s2.cost;
 	}
 }
 class Node
