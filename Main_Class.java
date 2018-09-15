@@ -24,6 +24,11 @@ public class Main_Class {
 		Map UCSmap = new Map();
 		Operations.UCS(UCSmap);
 		UCSmap.printMap("Uniform-Cost Search");
+		
+		Operations.printBreakLine();
+		Map GreedyMap = new Map();
+		Operations.Greedy(GreedyMap);
+		GreedyMap.printMap("Greedy Search");
 	}
 	
 
@@ -34,6 +39,74 @@ class Operations
 	public static void printBreakLine()
 	{
 		System.out.println("________________________________________________");
+	}
+	public static void Greedy(Map map)
+	{
+		int currentNumber=1;
+		PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>(new Comparator<Node>()
+				{
+			@Override
+			public int compare(Node s1, Node s2)
+			{
+				return s1.getManhattanDistanceFromPoint(0, 5)-s2.getManhattanDistanceFromPoint(0, 5);
+			}
+				});
+		priorityQueue.add(map.map[3][2]);
+		map.map[3][2].visited=true;
+		while(map.map[0][5].value.equals("[]"))
+		{
+			//debug just to see logic
+//			for(int i=0;i<priorityQueue.size();i++)
+//			{
+//				System.out.print("("+priorityQueue.toArray(new Node[0])[i].value+")"+priorityQueue.toArray(new Node[0])[i].getManhattanDistanceFromPoint(0, 5)+" ");
+//			}
+//			System.out.println("");
+			Node nodeAdventuring = priorityQueue.remove();
+			if(checkBound(nodeAdventuring.x,nodeAdventuring.y-1))
+			{
+				Node changeNode = map.map[nodeAdventuring.x][nodeAdventuring.y-1];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+				changeNode.value=String.format("%02d", currentNumber);
+				changeNode.cost=(nodeAdventuring.cost+2);
+				currentNumber++;
+				priorityQueue.add(changeNode);
+				}
+			}
+			if(checkBound(nodeAdventuring.x-1,nodeAdventuring.y))
+			{
+				Node changeNode = map.map[nodeAdventuring.x-1][nodeAdventuring.y];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+				changeNode.value=String.format("%02d", currentNumber);
+				changeNode.cost=(nodeAdventuring.cost+1);
+				currentNumber++;
+				priorityQueue.add(changeNode);
+				}
+			}
+			if(checkBound(nodeAdventuring.x,nodeAdventuring.y+1))
+			{
+				Node changeNode = map.map[nodeAdventuring.x][nodeAdventuring.y+1];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+				changeNode.value=String.format("%02d", currentNumber);
+				changeNode.cost=(nodeAdventuring.cost+2);
+				currentNumber++;
+				priorityQueue.add(changeNode);
+				}
+			}
+			if(checkBound(nodeAdventuring.x+1,nodeAdventuring.y))
+			{
+				Node changeNode = map.map[nodeAdventuring.x+1][nodeAdventuring.y];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+				changeNode.value=String.format("%02d", currentNumber);
+				changeNode.cost=(nodeAdventuring.cost+3);
+				currentNumber++;
+				priorityQueue.add(changeNode);
+				}
+			}
+		}
 	}
 	public static void UCS(Map map)
 	{
@@ -223,6 +296,25 @@ class Node
 		this.x=x;
 		this.y=y;
 		this.cost=0;
+	}
+	public int getManhattanDistanceFromPoint(int x, int y)
+	{
+		int manHattanDistance =0;
+		int xDistance = this.x-x;
+		int yDistance = this.y-y;
+		if(yDistance!=0)
+		{
+			manHattanDistance += (Math.abs(yDistance)*2);
+		}
+		if(xDistance>0)
+		{
+			manHattanDistance += (Math.abs(xDistance)*1);
+		}
+		if(xDistance<0)
+		{
+			manHattanDistance += (Math.abs(xDistance)*3);
+		}
+		return manHattanDistance;
 	}
 }
 class Map {
