@@ -1,7 +1,9 @@
 package Project_1_CIS_479;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -12,11 +14,16 @@ public class Main_Class {
 		Map BFSmap = new Map();
 		Operations.BFS(BFSmap);
 		BFSmap.printMap("Breadth First Search");
+		
 		Operations.printBreakLine();
-		Map DFSmap= new Map();
+		Map DFSmap = new Map();
 		Operations.DFS(DFSmap);
 		DFSmap.printMap("Depth First Search");
 		
+		Operations.printBreakLine();
+		Map UCSmap = new Map();
+		Operations.UCS(UCSmap);
+		UCSmap.printMap("Uniform-Cost Search");
 	}
 	
 
@@ -27,6 +34,68 @@ class Operations
 	public static void printBreakLine()
 	{
 		System.out.println("________________________________________________");
+	}
+	public static void UCS(Map map)
+	{
+		int currentNumber=1;
+		PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>(new Comparator<Node>()
+				{
+			@Override
+			public int compare(Node s1, Node s2)
+			{
+				return s1.cost-s2.cost;
+			}
+				});
+		priorityQueue.add(map.map[3][2]);
+		map.map[3][2].visited=true;
+		while(map.map[0][5].value.equals("[]"))
+		{
+			Node nodeAdventuring = priorityQueue.remove();
+			if(checkBound(nodeAdventuring.x,nodeAdventuring.y-1))
+			{
+				Node changeNode = map.map[nodeAdventuring.x][nodeAdventuring.y-1];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+				changeNode.value=String.format("%02d", currentNumber);
+				changeNode.cost=(nodeAdventuring.cost+2);
+				currentNumber++;
+				priorityQueue.add(changeNode);
+				}
+			}
+			if(checkBound(nodeAdventuring.x-1,nodeAdventuring.y))
+			{
+				Node changeNode = map.map[nodeAdventuring.x-1][nodeAdventuring.y];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+				changeNode.value=String.format("%02d", currentNumber);
+				changeNode.cost=(nodeAdventuring.cost+1);
+				currentNumber++;
+				priorityQueue.add(changeNode);
+				}
+			}
+			if(checkBound(nodeAdventuring.x,nodeAdventuring.y+1))
+			{
+				Node changeNode = map.map[nodeAdventuring.x][nodeAdventuring.y+1];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+				changeNode.value=String.format("%02d", currentNumber);
+				changeNode.cost=(nodeAdventuring.cost+2);
+				currentNumber++;
+				priorityQueue.add(changeNode);
+				}
+			}
+			if(checkBound(nodeAdventuring.x+1,nodeAdventuring.y))
+			{
+				Node changeNode = map.map[nodeAdventuring.x+1][nodeAdventuring.y];
+				if(changeNode.value.equals("[]") && !changeNode.visited)
+				{
+				changeNode.value=String.format("%02d", currentNumber);
+				changeNode.cost=(nodeAdventuring.cost+3);
+				currentNumber++;
+				priorityQueue.add(changeNode);
+				}
+			}
+		}
 	}
 	public static void BFS(Map map)
 	{
@@ -145,6 +214,7 @@ class Node
 	public String value;
 	public int x;
 	public int y;
+	public int cost;
 	public Boolean visited;
 	public Node(int x, int y)
 	{
@@ -152,6 +222,7 @@ class Node
 		this.visited=false;
 		this.x=x;
 		this.y=y;
+		this.cost=0;
 	}
 }
 class Map {
